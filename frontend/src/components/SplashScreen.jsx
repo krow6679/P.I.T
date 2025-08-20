@@ -24,7 +24,7 @@ const SplashScreen = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 cursor-pointer" onClick={onComplete}>
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-green-900/20"></div>
