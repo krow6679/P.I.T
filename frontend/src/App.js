@@ -6,7 +6,7 @@ import HomeScreen from "./components/HomeScreen";
 import SLSSpiritBoxScreen from "./components/SLSSpiritBoxScreen";
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false); // Temporarily disabled
   const [currentScreen, setCurrentScreen] = useState('home');
 
   const handleSplashComplete = () => {
