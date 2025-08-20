@@ -202,7 +202,7 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
           {/* Detection Count */}
           <div className="absolute top-4 right-4 bg-black/60 rounded px-2 py-1">
             <span className="text-xs text-green-400">
-              Contacts: {detectedPoints.length}
+              Contacts: {detections.length}
             </span>
           </div>
 
