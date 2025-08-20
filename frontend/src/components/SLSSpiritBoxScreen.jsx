@@ -49,40 +49,27 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
     return () => clearInterval(interval);
   }, [spiritBoxActive]);
 
-  // SLS detection simulation
-  useEffect(() => {
-    if (!slsActive) return;
-
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance of detection
-        const newPoint = {
-          id: Date.now(),
-          x: Math.random() * 320 + 20, // Keep within camera bounds
-          y: Math.random() * 240 + 40,
-          confidence: Math.random() * 0.5 + 0.5, // 0.5 - 1.0
-          timestamp: Date.now()
-        };
-        
-        setDetectedPoints(prev => {
-          const filtered = prev.filter(p => Date.now() - p.timestamp < 5000); // Keep points for 5 seconds
-          return [...filtered, newPoint];
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [slsActive, sensitivity]);
-
-  // Initialize camera
+  // Initialize camera and SLS engine
   useEffect(() => {
     const initCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment' } 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          } 
         });
+        
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          videoRef.current.onloadedmetadata = () => {
+            setCameraReady(true);
+          };
         }
+
+        // Initialize SLS engine
+        await initialize();
       } catch (error) {
         console.error('Camera access denied:', error);
       }
@@ -96,7 +83,23 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
         tracks.forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [initialize]);
+
+  // Handle SLS detection toggle
+  useEffect(() => {
+    if (!cameraReady || !videoRef.current) return;
+
+    if (slsActive && isInitialized) {
+      startDetection(videoRef.current);
+    } else {
+      stopDetection();
+    }
+  }, [slsActive, cameraReady, isInitialized, startDetection, stopDetection]);
+
+  // Update SLS sensitivity
+  useEffect(() => {
+    setSLSSensitivity(sensitivity[0]);
+  }, [sensitivity, setSLSSensitivity]);
 
   const drawSLSOverlay = () => {
     const canvas = canvasRef.current;
