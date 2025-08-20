@@ -9,7 +9,7 @@ import ParaNotebookScreen from "./components/ParaNotebookScreen";
 import SettingsScreen from "./components/SettingsScreen";
 
 function App() {
-  const [showSplash, setShowSplash] = useState(false); // Temporarily disabled
+  const [showSplash, setShowSplash] = useState(true);
   const [currentScreen, setCurrentScreen] = useState('home');
 
   const handleSplashComplete = () => {
