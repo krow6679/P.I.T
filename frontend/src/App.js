@@ -35,59 +35,34 @@ function App() {
       case 'sls-spiritbox':
         return <SLSSpiritBoxScreen onBack={handleBack} />;
       case 'ghost-radar':
-        return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Ghost Radar</h2>
-              <p className="text-gray-400 mb-4">Coming Soon...</p>
-              <button 
-                onClick={handleBack}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
-              >
-                Back to Home
-              </button>
-            </div>
-          </div>
-        );
+        return <GhostRadarScreen onBack={handleBack} />;
       case 'para-notebook':
-        return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">ParaNotebook</h2>
-              <p className="text-gray-400 mb-4">Digital Investigation Records</p>
-              <button 
-                onClick={handleBack}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
-              >
-                Back to Home
-              </button>
-            </div>
-          </div>
-        );
+        return <ParaNotebookScreen onBack={handleBack} />;
       case 'settings':
-        return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Settings</h2>
-              <p className="text-gray-400 mb-4">Configure your paranormal tools</p>
-              <button 
-                onClick={handleBack}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
-              >
-                Back to Home
-              </button>
-            </div>
-          </div>
-        );
+        return <SettingsScreen onBack={handleBack} />;
       case 'info':
         return (
           <div className="min-h-screen bg-black text-white flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center p-6">
               <h2 className="text-2xl font-bold mb-4">Hunter Network</h2>
-              <p className="text-gray-400 mb-4">Connect with fellow ghost hunters</p>
+              <p className="text-gray-400 mb-6">Connect with fellow ghost hunters worldwide</p>
+              <div className="space-y-4 mb-8">
+                <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <h3 className="font-bold text-green-400 mb-2">Share Experiences</h3>
+                  <p className="text-sm text-gray-300">Upload your investigations and evidence to the community</p>
+                </div>
+                <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <h3 className="font-bold text-purple-400 mb-2">Find Teams</h3>
+                  <p className="text-sm text-gray-300">Connect with investigators in your area</p>
+                </div>
+                <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                  <h3 className="font-bold text-blue-400 mb-2">Location Database</h3>
+                  <p className="text-sm text-gray-300">Discover haunted locations and hotspots</p>
+                </div>
+              </div>
               <button 
                 onClick={handleBack}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
+                className="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Back to Home
               </button>
