@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-webgl';
-import { Pose } from '@mediapipe/pose';
 
 class SLSCameraEngine {
   constructor() {
@@ -21,8 +20,14 @@ class SLSCameraEngine {
       await tf.ready();
       await tf.setBackend('webgl');
 
+      // Wait for MediaPipe to load from CDN
+      if (typeof window.Pose === 'undefined') {
+        console.log('Waiting for MediaPipe to load...');
+        await this.waitForMediaPipe();
+      }
+
       // Initialize MediaPipe Pose
-      this.pose = new Pose({
+      this.pose = new window.Pose({
         locateFile: (file) => {
           return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
         }
@@ -31,19 +36,40 @@ class SLSCameraEngine {
       this.pose.setOptions({
         modelComplexity: 1,
         smoothLandmarks: true,
-        enableSegmentation: true,
-        smoothSegmentation: true,
+        enableSegmentation: false, // Disable to improve performance
+        smoothSegmentation: false,
         minDetectionConfidence: this.sensitivity,
         minTrackingConfidence: 0.5
       });
 
       this.pose.onResults(this.onPoseResults.bind(this));
       this.isInitialized = true;
+      console.log('SLS Camera Engine initialized successfully');
       return true;
     } catch (error) {
       console.error('Failed to initialize SLS Camera Engine:', error);
       return false;
     }
+  }
+
+  async waitForMediaPipe(maxWait = 10000) {
+    return new Promise((resolve, reject) => {
+      const checkInterval = 100;
+      let waited = 0;
+      
+      const check = () => {
+        if (typeof window.Pose !== 'undefined') {
+          resolve();
+        } else if (waited >= maxWait) {
+          reject(new Error('MediaPipe failed to load'));
+        } else {
+          waited += checkInterval;
+          setTimeout(check, checkInterval);
+        }
+      };
+      
+      check();
+    });
   }
 
   onPoseResults(results) {
@@ -65,16 +91,18 @@ class SLSCameraEngine {
       // Calculate detection confidence
       const confidence = this.calculateConfidence(landmarks);
       
-      detections.push({
-        id: Date.now(),
-        type: 'human_figure',
-        confidence: confidence,
-        landmarks: landmarks,
-        skeleton: skeleton,
-        segmentation: results.segmentationMask,
-        timestamp: Date.now(),
-        worldLandmarks: results.poseWorldLandmarks
-      });
+      // Only add detection if confidence is above threshold
+      if (confidence > 0.3) {
+        detections.push({
+          id: Date.now(),
+          type: 'human_figure',
+          confidence: confidence,
+          landmarks: landmarks,
+          skeleton: skeleton,
+          timestamp: Date.now(),
+          worldLandmarks: results.poseWorldLandmarks
+        });
+      }
     }
 
     return detections;
@@ -126,20 +154,27 @@ class SLSCameraEngine {
     if (window.Camera) {
       this.camera = new window.Camera(videoElement, {
         onFrame: async () => {
-          if (this.isDetecting) {
+          if (this.isDetecting && videoElement.readyState === 4) {
             await this.pose.send({ image: videoElement });
           }
         },
         width: 640,
         height: 480
       });
+      this.camera.start();
     } else {
       // Fallback: manual frame processing
       const processFrame = async () => {
         if (this.isDetecting && videoElement.readyState === 4) {
-          await this.pose.send({ image: videoElement });
+          try {
+            await this.pose.send({ image: videoElement });
+          } catch (error) {
+            console.error('Error processing frame:', error);
+          }
         }
-        requestAnimationFrame(processFrame);
+        if (this.isDetecting) {
+          requestAnimationFrame(processFrame);
+        }
       };
       processFrame();
     }
@@ -152,6 +187,9 @@ class SLSCameraEngine {
     if (this.camera) {
       this.camera.stop();
       this.camera = null;
+    }
+    if (this.detectionCallback) {
+      this.detectionCallback([]); // Clear detections
     }
   }
 
