@@ -108,41 +108,44 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (slsActive) {
-      // Draw detection points
-      detectedPoints.forEach(point => {
-        const age = Date.now() - point.timestamp;
-        const alpha = Math.max(0, 1 - age / 5000); // Fade over 5 seconds
-        
-        ctx.save();
-        ctx.globalAlpha = alpha * point.confidence;
-        
-        // Draw point
-        ctx.fillStyle = '#00ff00';
-        ctx.fillRect(point.x - 2, point.y - 2, 4, 4);
-        
-        // Draw skeleton lines if multiple points
-        if (detectedPoints.length > 1) {
+    if (slsActive && detections.length > 0) {
+      detections.forEach(detection => {
+        if (detection.skeleton && detection.skeleton.length > 0) {
+          // Draw skeleton connections
           ctx.strokeStyle = '#00ff00';
           ctx.lineWidth = 2;
-          ctx.beginPath();
-          
-          // Connect nearby points
-          detectedPoints.forEach(otherPoint => {
-            const distance = Math.sqrt(
-              Math.pow(point.x - otherPoint.x, 2) + 
-              Math.pow(point.y - otherPoint.y, 2)
-            );
-            if (distance < 80 && otherPoint.id !== point.id) {
-              ctx.moveTo(point.x, point.y);
-              ctx.lineTo(otherPoint.x, otherPoint.y);
+          ctx.globalAlpha = detection.confidence;
+
+          detection.skeleton.forEach(connection => {
+            if (connection.start && connection.end && connection.confidence > 0.3) {
+              const startX = connection.start.x * canvas.width;
+              const startY = connection.start.y * canvas.height;
+              const endX = connection.end.x * canvas.width;
+              const endY = connection.end.y * canvas.height;
+
+              ctx.beginPath();
+              ctx.moveTo(startX, startY);
+              ctx.lineTo(endX, endY);
+              ctx.stroke();
             }
           });
-          
-          ctx.stroke();
+
+          // Draw landmark points
+          if (detection.landmarks) {
+            ctx.fillStyle = '#00ff00';
+            detection.landmarks.forEach(landmark => {
+              if (landmark.visibility > 0.5) {
+                const x = landmark.x * canvas.width;
+                const y = landmark.y * canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+              }
+            });
+          }
         }
         
-        ctx.restore();
+        ctx.globalAlpha = 1;
       });
     }
   };
@@ -150,7 +153,7 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
   useEffect(() => {
     const interval = setInterval(drawSLSOverlay, 100);
     return () => clearInterval(interval);
-  }, [detectedPoints, slsActive]);
+  }, [detections, slsActive]);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
