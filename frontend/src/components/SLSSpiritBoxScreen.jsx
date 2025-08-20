@@ -8,15 +8,26 @@ import { useSLSCamera } from './SLSCameraEngine';
 
 const SLSSpiritBoxScreen = ({ onBack }) => {
   const [isRecording, setIsRecording] = useState(false);
-  const [slsActive, setSLSActive] = useState(true);
+  const [slsActive, setSLSActive] = useState(false);
   const [spiritBoxActive, setSpiritBoxActive] = useState(false);
   const [sensitivity, setSensitivity] = useState([75]);
   const [currentWord, setCurrentWord] = useState('');
   const [wordOpacity, setWordOpacity] = useState(0);
-  const [detectedPoints, setDetectedPoints] = useState([]);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [cameraReady, setCameraReady] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  // Use the SLS Camera Engine
+  const {
+    isInitialized,
+    detections,
+    isDetecting,
+    initialize,
+    startDetection,
+    stopDetection,
+    setSensitivity: setSLSSensitivity
+  } = useSLSCamera();
 
   // Spirit Box word cycling
   useEffect(() => {
