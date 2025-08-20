@@ -29,24 +29,43 @@ const SLSSpiritBoxScreen = ({ onBack }) => {
     setSensitivity: setSLSSensitivity
   } = useSLSCamera();
 
-  // Spirit Box word cycling
+  // Spirit Box burst logic
   useEffect(() => {
     if (!spiritBoxActive) return;
 
-    const interval = setInterval(() => {
-      const randomWord = spiritBoxWords[Math.floor(Math.random() * spiritBoxWords.length)];
-      setCurrentWord(randomWord);
-      
-      // Fade in
-      setWordOpacity(1);
-      
-      // Fade out after 2 seconds
-      setTimeout(() => {
-        setWordOpacity(0);
-      }, 2000);
-    }, 3000 + Math.random() * 4000); // Random interval between 3-7 seconds
+    let burstTimeout, wordTimeout;
+    let burstWords = 0;
 
-    return () => clearInterval(interval);
+    const startBurst = () => {
+      const wordsThisBurst = Math.floor(Math.random() * 3) + 3; // 3, 4, or 5
+      burstWords = 0;
+
+      const showWord = () => {
+        const randomWord = spiritBoxWords[Math.floor(Math.random() * spiritBoxWords.length)];
+        setCurrentWord(randomWord);
+        setWordOpacity(1);
+
+        setTimeout(() => setWordOpacity(0), 2000); // Fade out after 2s
+
+        burstWords++;
+        if (burstWords < wordsThisBurst) {
+          // Next word in 1–2s
+          wordTimeout = setTimeout(showWord, 1000 + Math.random() * 1000);
+        } else {
+          // Schedule the next burst in 60–85s
+          burstTimeout = setTimeout(startBurst, 60000 + Math.random() * 25000);
+        }
+      };
+
+      showWord();
+    };
+
+    startBurst();
+
+    return () => {
+      clearTimeout(burstTimeout);
+      clearTimeout(wordTimeout);
+    };
   }, [spiritBoxActive]);
 
   // Initialize camera and SLS engine
