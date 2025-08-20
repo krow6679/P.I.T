@@ -1,49 +1,107 @@
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import SplashScreen from "./components/SplashScreen";
+import HomeScreen from "./components/HomeScreen";
+import SLSSpiritBoxScreen from "./components/SLSSpiritBoxScreen";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function App() {
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState('home');
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  const handleNavigate = (screen) => {
+    setCurrentScreen(screen);
+  };
+
+  const handleBack = () => {
+    setCurrentScreen('home');
+  };
+
+  if (showSplash) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'home':
+        return <HomeScreen onNavigate={handleNavigate} />;
+      case 'sls-spiritbox':
+        return <SLSSpiritBoxScreen onBack={handleBack} />;
+      case 'ghost-radar':
+        return (
+          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Ghost Radar</h2>
+              <p className="text-gray-400 mb-4">Coming Soon...</p>
+              <button 
+                onClick={handleBack}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        );
+      case 'para-notebook':
+        return (
+          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">ParaNotebook</h2>
+              <p className="text-gray-400 mb-4">Digital Investigation Records</p>
+              <button 
+                onClick={handleBack}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Settings</h2>
+              <p className="text-gray-400 mb-4">Configure your paranormal tools</p>
+              <button 
+                onClick={handleBack}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        );
+      case 'info':
+        return (
+          <div className="min-h-screen bg-black text-white flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Hunter Network</h2>
+              <p className="text-gray-400 mb-4">Connect with fellow ghost hunters</p>
+              <button 
+                onClick={handleBack}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        );
+      default:
+        return <HomeScreen onNavigate={handleNavigate} />;
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
+          <Route path="/" element={renderScreen()}>
+            <Route index element={renderScreen()} />
           </Route>
         </Routes>
       </BrowserRouter>
