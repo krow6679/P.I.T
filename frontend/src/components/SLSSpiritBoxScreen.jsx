@@ -3,7 +3,8 @@ import { Camera, Square, Circle, Settings, Mic, MicOff, Volume2, VolumeX } from 
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Slider } from './ui/slider';
-import { spiritBoxWords, slsDetections, environmentalReadings } from '../data/mock';
+import { spiritBoxWords, environmentalReadings } from '../data/mock';
+import { useSLSCamera } from './SLSCameraEngine';
 
 const SLSSpiritBoxScreen = ({ onBack }) => {
   const [isRecording, setIsRecording] = useState(false);
