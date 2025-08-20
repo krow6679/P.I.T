@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen";
 import HomeScreen from "./components/HomeScreen";
 import SLSSpiritBoxScreen from "./components/SLSSpiritBoxScreen";
+import GhostRadarScreen from "./components/GhostRadarScreen";
+import ParaNotebookScreen from "./components/ParaNotebookScreen";
+import SettingsScreen from "./components/SettingsScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(false); // Temporarily disabled
